@@ -1,0 +1,5 @@
+1. 如果使用component 盡量在當中使用v-bind，資源才會自動回收
+2. 在beforeDestroy要做gc
+3. event bus 會有記憶體佔用的問題，可以考慮使用自製外掛
+4. 外掛中可以使用Object.defineProperties 去設定getter 限定該外掛只能被讀取 不能被修改
+5. 使用mixin可以讓所有的component都有相同的功能

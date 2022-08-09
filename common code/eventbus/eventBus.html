@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <button @click="count++">add</button>
+      <button @click="count > 0 ? count-- : 0">subtract</button>
+      <button @click="emitHandler">event</button>
+      <big-component v-for="number in count" :key="number"></big-component>
+    </div>
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.8/vue.js"></script>
+  <script>
+    /*
+    // 1. 用 Vue instace 來當作 event bus
+    let $bus = new Vue()
+
+    let BigComponent = {
+      // V-bind 寫在template中，destroyed時會自動回收
+      template: "<div>helloBig</div>",
+      created() {
+        this.text = Array(99999).fill("olaola").join(",")
+        $bus.$on("bigEvent", this.eventHandler)
+      },
+      methods: {
+        eventHandler(...arg) {
+          console.log(...arg)
+          console.log(this.text)
+        },
+      },
+      beforeDestroy() {
+        // gc 基本上回收資源都是在這階段，event, timer...等
+        // 如果單純只有bigEvent，等於是把整個bus的event移除，會讓有使用的component無法使用
+        $bus.$off("bigEvent", this.eventHandler)
+      },
+    }
+    */
+
+    // 2. 自製 event bus (外掛)
+    // bus class
+    let Bus = function (vue) {
+      // 自定義function
+      // 記錄所有在bus上的function (用來呼叫)
+      this.handles = {
+        //event:[]
+      }
+      // 紀錄component (用來回收)
+      this.eventUidMap = {
+        //uid:{
+        // event:
+        //}
+      }
+
+      this.$on = (event, callback, vm) => {
+        if (!this.handles[event]) {
+          this.handles[event] = []
+        }
+        if (callback instanceof Function) {
+          this.handles[event].push(callback)
+        }
+        if (vm instanceof Vue) {
+          this.setEventUidMap(vm._uid, event, callback)
+        }
+      }
+
+      this.setEventUidMap = (uid, event, callback) => {
+        if (!this.eventUidMap[uid]) {
+          this.eventUidMap[uid] = {}
+        }
+        if (!this.eventUidMap[uid][event]) {
+          this.eventUidMap[uid][event] = []
+        }
+        this.eventUidMap[uid][event].push(callback)
+      }
+
+      this.$off = (event, callback) => {
+        if (!this.handles[event]) {
+          return
+        }
+        if (!callback) {
+          this.handles[event] = []
+        } else if (callback instanceof Function) {
+          let len = this.handles[event].length
+          for (let i = 0; i < len; i++) {
+            if (this.handles[event][i] === callback) {
+              this.handles[event].splice(i, 1)
+              // 不需要 break 以防有重複的callback
+            }
+          }
+        }
+      }
+
+      this.$offByUid = (uid) => {
+        for (let event in this.eventUidMap[uid]) {
+          this.eventUidMap[uid][event].forEach((callback) => {
+            this.$off(event, callback)
+          })
+        }
+        this.eventUidMap[uid] = {}
+      }
+
+      this.$emit = (event, ...args) => {
+        if (this.handles[event]) {
+          this.handles[event].forEach((callback) => {
+            callback(...args)
+          })
+        }
+      }
+      return this
+    }
+
+    let EventBus = {
+      install(vue) {
+        let bus = new Bus(vue)
+        // 希望EventBus參數不要被修改(唯讀)
+        // 若沒有加此段，有人可以使用Vue.prototype.$eventBus = XXX 來修改
+        Object.defineProperties(Vue.prototype, {
+          $eventBus: {
+            get: function () {
+              return bus
+            },
+          },
+        })
+        Vue.mixin({
+          beforeDestroy() {
+            // 這邊只拿得到_uid，不知道event和callback
+            // 所以要利用eventBus 本身去做刪除
+            this.$eventBus.$offByUid(this._uid)
+          },
+        })
+      },
+    }
+    // 只要物件中有install function，Vue就可以use (外掛使用)
+    Vue.use(EventBus)
+
+    let BigComponent = {
+      // V-bind 寫在template中，destroyed時會自動回收
+      template: "<div>helloBig</div>",
+      created() {
+        this.text = Array(99999).fill("olaola").join(",")
+        this.$eventBus.$on("myEvent", this.eventHandler, this)
+      },
+      methods: {
+        eventHandler(...arg) {
+          console.log(...arg)
+          console.log(this.text)
+        },
+      },
+      beforeDestroy() {
+        // gc 基本上回收資源都是在這階段，event, timer...等
+        // 如果單純只有bigEvent，等於是把整個bus的event移除，會讓有使用的component無法使用
+        // $bus.$off("bigEvent", this.eventHandler)
+      },
+    }
+
+    let vm = new Vue({
+      el: "#app",
+      data: {
+        count: 0,
+      },
+      computed: {
+        bus() {
+          return this.$eventBus
+        },
+      },
+      methods: {
+        emitHandler() {
+          this.$eventBus.$emit("myEvent", "hello", "world", "!")
+        },
+      },
+      components: {
+        BigComponent,
+      },
+    })
+  </script>
+</html>

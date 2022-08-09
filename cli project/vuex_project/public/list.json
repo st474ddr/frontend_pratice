@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "name": "John Doe",
+    "hobby": "Reading"
+  },
+  {
+    "id": "2",
+    "name": "Jane Doe",
+    "hobby": "Writing"
+  },
+  {
+    "id": "3",
+    "name": "Jack Doe",
+    "hobby": "Playing"
+  },
+  {
+    "id": "4",
+    "name": "Jill Doe",
+    "hobby": "Singing"
+  },
+  {
+    "id": "5",
+    "name": "Joe Doe",
+    "hobby": "Dancing"
+  },
+  {
+    "id": "6",
+    "name": "Jenny Doe",
+    "hobby": "Skiing"
+  }
+]

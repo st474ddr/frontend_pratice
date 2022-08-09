@@ -1,0 +1,27 @@
+<!-- 互動式選項 -->
+<!-- ex:縣、市關聯互動 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <select v-model="input.type">
+            <option :value="null">請選擇</option>
+            <option v-for="item in typeList.sort">{{ item }}</option>
+        </select>
+        <select v-model="input.title">
+            <option :value="null">請選擇</option>
+            <option v-for="item in titleList.sort">{{ item }}</option>
+        </select>
+    </div>
+   
+    
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+<script src="/js/binding_select.js"></script>

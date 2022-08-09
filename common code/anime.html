@@ -1,0 +1,79 @@
+<!-- 過場動畫 -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .fade-enter,
+      .fade-leave-to {
+        opacity: 0;
+      }
+      .fade-enter-active,
+      .fade-leave-active {
+        transition: opacity 1s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div>
+        <button @click="index--" :disabled="index == 0">上一頁</button>
+        <!-- name="fade" 代表套用過場CSS-->
+        <!-- mode="out-in" 代表動畫先出再進(不會重疊)-->
+        <!-- appear 代表頁面剛讀取就渲染過場效果 -->
+        <transition name="fade" mode="out-in" appear>
+          <div
+            class="menuItem"
+            v-for="(item, i) in menu"
+            v-if="index === i"
+            :key="item.title"
+          >
+            <span>{{ i+1 }}</span>
+            <span> {{ item.type }}</span>
+            <span> {{ item.title }}</span>
+          </div>
+        </transition>
+        <button @click="index++" :disabled="index == menu.length-1">
+          下一頁
+        </button>
+      </div>
+      <div>
+        <button @click="index2--" :disabled="index2 == 0">上一頁</button>
+        <!-- :css="false" 忽略其他的CSS效果-->
+        <transition
+          @before-enter="beforeEnterHandler"
+          @enter="enterHandler"
+          @after-enter="afterEnterHandler"
+          @enter-cancelled="beforeEnterHandler"
+          :css="false"
+          mode="out-in"
+          appear
+        >
+          <div
+            class="menuItem"
+            v-for="(item, i) in menu2"
+            v-if="index2 === i"
+            :key="item.title"
+          >
+            <span>{{ i+1 }}</span>
+            <span> {{ item.type }}</span>
+            <span> {{ item.title }}</span>
+          </div>
+        </transition>
+        <button @click="index2++" :disabled="index2 == menu2.length-1">
+          下一頁
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+  integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+  crossorigin="anonymous"
+></script>
+<script src="/js/anime.js"></script>
