@@ -5,6 +5,11 @@ export default {
     id: 0,
     list: [],
   },
+  getters: {
+    currentPerson: (state) => {
+      return state.list[state.id - 1]
+    },
+  },
   mutations: {
     setId(state, id) {
       state.id = id

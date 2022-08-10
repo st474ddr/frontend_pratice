@@ -1,8 +1,8 @@
 <template>
   <div>
     <h1 v-if="id">No.{{ id }}</h1>
-    <h1 v-if="list.length && id">hello! I'm {{ list[id - 1].name }}</h1>
-    <h1 v-if="list.length && id">my hobby is {{ list[id - 1].hobby }}</h1>
+    <h1 v-if="currentPerson && id">hello! I'm {{ currentPerson.name }}</h1>
+    <h1 v-if="currentPerson && id">my hobby is {{ currentPerson.hobby }}</h1>
   </div>
 </template>
 
@@ -18,8 +18,10 @@ export default {
         this.$store.commit("hobby/setId", val)
       },
     },
-    list() {
-      return this.$store.state.hobby ? this.$store.state.hobby.list : []
+    currentPerson() {
+      return this.$store.getters["hobby/currentPerson"]
+        ? this.$store.getters["hobby/currentPerson"]
+        : null
     },
   },
 
